@@ -17,8 +17,14 @@ type VideoInfo struct {
 
 type VideoInfoList []VideoInfo
 
+type VideoInfoResp struct {
+	Result   string
+	InfoList VideoInfoList
+}
+
 func GetList(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	r.ParseForm()
+	result := "ok"
 	videotype := ""
 	page := 0
 	pagesize := 0
@@ -41,10 +47,17 @@ func GetList(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	fmt.Println("vtype", videotype, " page ", page, " pagesize ", pagesize)
 
 	infoList := make(VideoInfoList, 0)
+	var resp VideoInfoResp
 
 	if pagesize == 0 || page == 0 {
+		result = "page info error"
+	}
+
+	if result != "ok" {
 		w.Header().Set("Content-Type", "application/json")
-		js, _ := json.Marshal(infoList)
+		resp.Result = result
+		resp.InfoList = infoList
+		js, _ := json.Marshal(resp)
 		w.Write(js)
 		return
 	}
@@ -57,7 +70,9 @@ func GetList(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		infoList = append(infoList, infoItem)
 	}
 
-	js, err := json.Marshal(infoList)
+	resp.Result = result
+	resp.InfoList = infoList
+	js, err := json.Marshal(resp)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
