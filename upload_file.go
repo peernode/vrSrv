@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/julienschmidt/httprouter"
 	"io"
 	"net/http"
 	"os"
@@ -16,7 +17,7 @@ import (
 </form>
 */
 
-func upload(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func Upload(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	fmt.Println("methond: ", r.Method)
 	if r.Method == "GET" {
 		curtime := time.Now().Unix()
