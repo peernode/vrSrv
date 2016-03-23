@@ -4,8 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/julienschmidt/httprouter"
+	"html/template"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strconv"
+	"strings"
 )
 
 type VideoInfo struct {
@@ -44,7 +48,7 @@ func GetList(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		}
 	}
 
-	fmt.Println("vtype", videotype, " page ", page, " pagesize ", pagesize)
+	GLogger.Info("httpreq|GetList|vtype: %s, page: %d, pagesize %d", videotype, page, pagesize)
 
 	infoList := make(VideoInfoList, 0)
 	var resp VideoInfoResp
@@ -80,4 +84,102 @@ func GetList(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(js)
+}
+
+type fileInfo struct {
+	Name    string
+	Size    int64
+	ModTime string
+}
+
+func getFileInfo(root string) ([]fileInfo, error) {
+	infos := make([]fileInfo, 0)
+	err := filepath.Walk(root, func(path string, f os.FileInfo, err error) error {
+		if f == nil {
+			return err
+		}
+		if f.IsDir() {
+			return nil
+		}
+
+		if !strings.HasPrefix(f.Name(), ".") {
+			var item fileInfo
+			item.Name = f.Name()
+			item.Size = f.Size()
+			item.ModTime = f.ModTime().String()
+			infos = append(infos, item)
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return infos, nil
+}
+
+func GetUploadList(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+
+	infos, _ := getFileInfo("./resource/")
+	fmt.Println(infos)
+	GLogger.Info("httpreq|GetUploadList| %d items", len(infos))
+
+	/*
+	   	const tpl = `
+	   <!DOCTYPE html>
+	   <html>
+	   	<head>
+	   		<meta charset="UTF-8">
+	   		<title>上传列表</title>
+	   	</head>
+	   	<body>
+	   		<table border="1">
+	   		  <tr>
+	   		    <th>文件名</th>
+	   		    <th>大小</th>
+	   		    <th>创建时间</th>
+	   		  </tr>
+
+	   		  {{range .}}
+	   		  <tr>
+	   		    <td>{{.Name}}</td>
+	   		    <td>{{.Size}}</td>
+	   		    <td>{{.ModTime}}</td>
+	   		  </tr>
+	   		  {{end}}
+	   		</table>
+	   	</body>
+	   </html>`
+
+	   	check := func(err error) {
+	   		if err != nil {
+	   			fmt.Println("err3: ", err)
+	   		}
+	   	}
+	   	t, err := template.New("webpage").Parse(tpl)
+	   	check(err)
+
+	   	err = t.Execute(w, infos)
+	   	check(err)
+
+	   	return
+	*/
+
+	t, err := template.ParseFiles("uploadList.html")
+	if err != nil {
+		fmt.Println("template parse error: ", err)
+		GLogger.Info("get upload list error: %s", err.Error())
+		fmt.Fprintf(w, "get upload list error: %s", err.Error())
+		return
+	}
+	err = t.Execute(w, infos)
+	if err != nil {
+		GLogger.Info("get upload list error2: %s", err.Error())
+		fmt.Fprintf(w, "get upload list error2: %s", err.Error())
+		return
+	}
+
+	//fmt.Fprintf(w, "get infos ok")
 }
