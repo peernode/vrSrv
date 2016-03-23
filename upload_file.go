@@ -29,11 +29,24 @@ func Upload(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 			fmt.Println(err)
 			return
 		}
-
 		defer file.Close()
 
+		usrName := ""
+		id := r.MultipartForm.Value["id"]
+		if len(id) > 0 {
+			usrName = id[0]
+		}
+		datum := "20150101"
+		datumValue := r.MultipartForm.Value["datum"]
+		if len(datumValue) > 0 {
+			datum = datumValue[0]
+		}
+
+		fmt.Println("upload request, id: ", usrName, " datum: ", datum)
+
 		fmt.Fprintf(w, "%v", handler.Header)
-		f, err := os.OpenFile("./public/"+handler.Filename, os.O_WRONLY|os.O_CREATE, 0666)
+		fileName := fmt.Sprintf("%s_%s_%s", datum, usrName, handler.Filename)
+		f, err := os.OpenFile("./resource/"+fileName, os.O_WRONLY|os.O_CREATE, 0666)
 		if err != nil {
 			fmt.Println(err)
 			return
