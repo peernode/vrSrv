@@ -48,7 +48,7 @@ func GetList(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		}
 	}
 
-	GLogger.Info("httpreq|GetList|vtype: %s, page: %d, pagesize %d", videotype, page, pagesize)
+	gLogger.Info("httpreq|GetList|vtype: %s, page: %d, pagesize %d", videotype, page, pagesize)
 
 	infoList := make(VideoInfoList, 0)
 	var resp VideoInfoResp
@@ -124,7 +124,7 @@ func GetUploadList(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 
 	infos, _ := getFileInfo("./resource/")
 	fmt.Println(infos)
-	GLogger.Info("httpreq|GetUploadList| %d items", len(infos))
+	gLogger.Info("httpreq|GetUploadList| %d items", len(infos))
 
 	/*
 	   	const tpl = `
@@ -170,13 +170,13 @@ func GetUploadList(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 	t, err := template.ParseFiles("uploadList.html")
 	if err != nil {
 		fmt.Println("template parse error: ", err)
-		GLogger.Info("get upload list error: %s", err.Error())
+		gLogger.Info("get upload list error: %s", err.Error())
 		fmt.Fprintf(w, "get upload list error: %s", err.Error())
 		return
 	}
 	err = t.Execute(w, infos)
 	if err != nil {
-		GLogger.Info("get upload list error2: %s", err.Error())
+		gLogger.Info("get upload list error2: %s", err.Error())
 		fmt.Fprintf(w, "get upload list error2: %s", err.Error())
 		return
 	}

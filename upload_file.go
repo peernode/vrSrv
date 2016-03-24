@@ -18,7 +18,7 @@ import (
 */
 
 func Upload(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	GLogger.Info("httpreq|Upload|method: %s", r.Method)
+	gLogger.Info("httpreq|Upload|method: %s", r.Method)
 	if r.Method == "GET" {
 		curtime := time.Now().Unix()
 		fmt.Println("curtime: ", curtime)
@@ -26,7 +26,7 @@ func Upload(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		r.ParseMultipartForm(32 << 20)
 		file, handler, err := r.FormFile("uploadfile")
 		if err != nil {
-			GLogger.Info("upload fail: %s", err.Error())
+			gLogger.Info("upload fail: %s", err.Error())
 			fmt.Fprintf(w, "上传失败， %s", err.Error())
 			return
 		}
@@ -46,7 +46,7 @@ func Upload(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		fileName := fmt.Sprintf("%s_%s_%s", datum, usrName, handler.Filename)
 		f, err := os.OpenFile("./data/"+fileName, os.O_WRONLY|os.O_CREATE, 0666)
 		if err != nil {
-			GLogger.Info("upload fail, id: %s, name: %s, err: %s", usrName, handler.Filename, err.Error())
+			gLogger.Info("upload fail, id: %s, name: %s, err: %s", usrName, handler.Filename, err.Error())
 			fmt.Fprintf(w, "%s 上传失败， %s", handler.Filename, err.Error())
 			return
 		}
@@ -55,7 +55,7 @@ func Upload(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		io.Copy(f, file)
 		fmt.Fprintf(w, "%s 上传成功！", handler.Filename)
 
-		GLogger.Info("upload success, id: %s, name: %s", usrName, handler.Filename)
+		gLogger.Info("upload success, id: %s, name: %s", usrName, handler.Filename)
 
 		gUploadFileCh <- fileName
 
