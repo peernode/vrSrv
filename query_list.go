@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -90,10 +91,25 @@ type fileInfo struct {
 	Name    string
 	Size    int64
 	ModTime string
+	Utc     int64
 }
 
-func getFileInfo(root string) ([]fileInfo, error) {
-	infos := make([]fileInfo, 0)
+type FileInfos []fileInfo
+
+func (s FileInfos) Len() int {
+	return len(s)
+}
+
+func (s FileInfos) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+
+func (s FileInfos) Less(i, j int) bool {
+	return s[i].Utc > s[j].Utc
+}
+
+func getFileInfo(root string) (FileInfos, error) {
+	infos := make(FileInfos, 0)
 	err := filepath.Walk(root, func(path string, f os.FileInfo, err error) error {
 		if f == nil {
 			return err
@@ -107,6 +123,7 @@ func getFileInfo(root string) ([]fileInfo, error) {
 			item.Name = f.Name()
 			item.Size = f.Size()
 			item.ModTime = f.ModTime().String()
+			item.Utc = f.ModTime().Unix()
 			infos = append(infos, item)
 		}
 
@@ -123,6 +140,7 @@ func getFileInfo(root string) ([]fileInfo, error) {
 func GetUploadList(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 	infos, _ := getFileInfo("./resource/")
+	sort.Sort(infos)
 	fmt.Println(infos)
 	gLogger.Info("httpreq|GetUploadList| %d items", len(infos))
 
