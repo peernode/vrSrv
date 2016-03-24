@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>上传列表</title>
+	</head>
+	<body>
+		<table border="1">
+		  <tr>
+		    <th>文件名</th>
+		    <th>大小</th>
+		    <th>创建时间</th>
+		  </tr>
+
+		  {{range .}}
+		  <tr>
+		    <td>{{.Name}}</td>
+		    <td>{{.Size}}</td>
+		    <td>{{.ModTime}}</td>
+		  </tr>
+		  {{end}}
+		</table>
+	</body>
+</html>
