@@ -51,7 +51,7 @@ func ffmpegTransfer() {
 func main() {
 	initLogger()
 
-	//go ffmpegTransfer()
+	go ffmpegTransfer()
 
 	router := httprouter.New()
 	initPathRouter(router)

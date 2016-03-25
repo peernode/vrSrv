@@ -50,6 +50,7 @@ func GetList(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 
 	gLogger.Info("httpreq|GetList|vtype: %s, page: %d, pagesize %d", videotype, page, pagesize)
+	fmt.Println("Host: ", r.Host)
 
 	infoList := make(VideoInfoList, 0)
 	var resp VideoInfoResp
@@ -67,13 +68,26 @@ func GetList(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	sip := "127.0.0.1:8080"
+	infos, _ := getFileInfo("./data_out/", true)
+	sort.Sort(infos)
+
 	for i := 0; i < pagesize; i++ {
-		imageUrl := fmt.Sprintf("http://%s/vr/static/vrimage/vrtest1.jpg", sip)
-		videoUrl := fmt.Sprintf("http://%s/vr/static/video/test1.mp4", sip)
-		infoItem := VideoInfo{Title: "test1", Desc: "test1", ImageUrl: imageUrl, VideoUrl: videoUrl}
+		imageUrl := fmt.Sprintf("http://%s/vr/static/vrimage/vrtest1.jpg", r.Host)
+		videoUrl := fmt.Sprintf("http://%s/vr/static/video/test1.mp4", r.Host)
+
+		if len(infos) > 0 {
+			imageUrl = fmt.Sprintf("http://%s/vr/static2/%s.jpg", r.Host, infos[i%len(infos)].Name)
+			videoUrl = fmt.Sprintf("http://%s/vr/static2/%s", r.Host, infos[i%len(infos)].Name)
+		}
+
+		videoTitle := fmt.Sprintf("test中文%d", i)
+		videsDesc := fmt.Sprintf("test中文%d", i)
+
+		infoItem := VideoInfo{Title: videoTitle, Desc: videsDesc, ImageUrl: imageUrl, VideoUrl: videoUrl}
 		infoList = append(infoList, infoItem)
 	}
+
+	fmt.Println(infoList)
 
 	resp.Result = result
 	resp.InfoList = infoList
@@ -83,7 +97,7 @@ func GetList(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.Write(js)
 }
 
@@ -108,13 +122,17 @@ func (s FileInfos) Less(i, j int) bool {
 	return s[i].Utc > s[j].Utc
 }
 
-func getFileInfo(root string) (FileInfos, error) {
+func getFileInfo(root string, mp4Only bool) (FileInfos, error) {
 	infos := make(FileInfos, 0)
 	err := filepath.Walk(root, func(path string, f os.FileInfo, err error) error {
 		if f == nil {
 			return err
 		}
 		if f.IsDir() {
+			return nil
+		}
+
+		if mp4Only && !strings.HasSuffix(f.Name(), ".mp4") {
 			return nil
 		}
 
@@ -139,7 +157,7 @@ func getFileInfo(root string) (FileInfos, error) {
 
 func GetUploadList(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
-	infos, _ := getFileInfo("./resource/")
+	infos, _ := getFileInfo("./data/", false)
 	sort.Sort(infos)
 	fmt.Println(infos)
 	gLogger.Info("httpreq|GetUploadList| %d items", len(infos))
