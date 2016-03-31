@@ -43,8 +43,8 @@ func Upload(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 			datum = datumValue[0]
 		}
 
-		fileName := fmt.Sprintf("%s_%s_%s", datum, usrName, handler.Filename)
-		f, err := os.OpenFile("./data/"+fileName, os.O_WRONLY|os.O_CREATE, 0666)
+		fileName := fmt.Sprintf("./%s/%s_%s_%s", configuration.uploadDir, datum, usrName, handler.Filename)
+		f, err := os.OpenFile(fileName, os.O_WRONLY|os.O_CREATE, 0666)
 		if err != nil {
 			gLogger.Info("upload fail, id: %s, name: %s, err: %s", usrName, handler.Filename, err.Error())
 			fmt.Fprintf(w, "%s 上传失败， %s", handler.Filename, err.Error())
@@ -58,6 +58,5 @@ func Upload(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		gLogger.Info("upload success, id: %s, name: %s", usrName, handler.Filename)
 
 		gUploadFileCh <- fileName
-
 	}
 }

@@ -76,7 +76,7 @@ func GetList(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	infos, _ := getFileInfo("./data_out/", true)
+	infos, _ := getFileInfo(configuration.convertDir, true)
 	sort.Sort(infos)
 
 	for i := 0; i < pagesize; i++ {
@@ -164,11 +164,25 @@ func getFileInfo(root string, mp4Only bool) (FileInfos, error) {
 }
 
 func GetUploadList(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-
-	infos, _ := getFileInfo("./data/", false)
+	infos, _ := getFileInfo(configuration.uploadDir, false)
 	sort.Sort(infos)
 	fmt.Println(infos)
 	gLogger.Info("httpreq|GetUploadList| %d items", len(infos))
+
+	t, err := template.ParseFiles("./tmpl/uploadList.html")
+	if err != nil {
+		fmt.Println("template parse error: ", err)
+		gLogger.Info("get upload list error: %s", err.Error())
+		fmt.Fprintf(w, "get upload list error: %s", err.Error())
+		return
+	}
+	err = t.Execute(w, infos)
+	if err != nil {
+		gLogger.Info("get upload list error2: %s", err.Error())
+		fmt.Fprintf(w, "get upload list error2: %s", err.Error())
+		return
+	}
+}
 
 	/*
 	   	const tpl = `
@@ -210,20 +224,3 @@ func GetUploadList(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 
 	   	return
 	*/
-
-	t, err := template.ParseFiles("uploadList.html")
-	if err != nil {
-		fmt.Println("template parse error: ", err)
-		gLogger.Info("get upload list error: %s", err.Error())
-		fmt.Fprintf(w, "get upload list error: %s", err.Error())
-		return
-	}
-	err = t.Execute(w, infos)
-	if err != nil {
-		gLogger.Info("get upload list error2: %s", err.Error())
-		fmt.Fprintf(w, "get upload list error2: %s", err.Error())
-		return
-	}
-
-	//fmt.Fprintf(w, "get infos ok")
-}
