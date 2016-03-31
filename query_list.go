@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/julienschmidt/httprouter"
 	"html/template"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -25,6 +26,13 @@ type VideoInfoList []VideoInfo
 type VideoInfoResp struct {
 	Result   string
 	InfoList VideoInfoList
+}
+
+func GetList2(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	file, _ := os.Open("program2.json")
+	js, _ := ioutil.ReadAll(file)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Write(js)
 }
 
 func GetList(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
@@ -60,7 +68,7 @@ func GetList(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 
 	if result != "ok" {
-		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		resp.Result = result
 		resp.InfoList = infoList
 		js, _ := json.Marshal(resp)
