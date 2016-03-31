@@ -56,7 +56,6 @@ func GetList(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 			pagesize = i
 		}
 	}
-
 	gLogger.Info("httpreq|GetList|vtype: %s, page: %d, pagesize %d", videoType, page, pagesize)
 
 	if pagesize == 0 || page == 0 {
@@ -82,8 +81,6 @@ func GetList(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 		infoList = append(infoList, VideoInfo{Title: videoTitle, Desc: videoDesc, ImageUrl: imageUrl, VideoUrl: videoUrl})
 	}
-
-	fmt.Println(infoList)
 
 	var resp = VideoInfoResp{Result: "ok", InfoList: infoList}
 	js, err := json.Marshal(resp)
