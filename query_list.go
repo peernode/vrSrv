@@ -37,12 +37,12 @@ func GetList2(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 func GetList(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	r.ParseForm()
-	result := "ok"
-	videotype := ""
+
+	videoType := ""
 	page := 0
 	pagesize := 0
 	if len(r.Form["type"]) > 0 {
-		videotype = r.Form["type"][0]
+		videoType = r.Form["type"][0]
 	}
 	if len(r.Form["page"]) > 0 {
 		i, err := strconv.Atoi(r.Form["page"][0])
@@ -57,48 +57,35 @@ func GetList(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		}
 	}
 
-	gLogger.Info("httpreq|GetList|vtype: %s, page: %d, pagesize %d", videotype, page, pagesize)
-	fmt.Println("Host: ", r.Host)
-
-	infoList := make(VideoInfoList, 0)
-	var resp VideoInfoResp
+	gLogger.Info("httpreq|GetList|vtype: %s, page: %d, pagesize %d", videoType, page, pagesize)
 
 	if pagesize == 0 || page == 0 {
-		result = "page info error"
-	}
-
-	if result != "ok" {
+		var r = VideoInfoResp{Result:"page info error"}
+		js, _ := json.Marshal(r)
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		resp.Result = result
-		resp.InfoList = infoList
-		js, _ := json.Marshal(resp)
 		w.Write(js)
 		return
 	}
 
 	infos, _ := getFileInfo(configuration.convertDir, true)
 	sort.Sort(infos)
-
+	infoList := make(VideoInfoList, 0)
 	for i := 0; i < pagesize; i++ {
 		imageUrl := fmt.Sprintf("http://%s/vr/static/vrimage/vrtest1.jpg", r.Host)
 		videoUrl := fmt.Sprintf("http://%s/vr/static/video/test1.mp4", r.Host)
-
 		if len(infos) > 0 {
 			imageUrl = fmt.Sprintf("http://%s/vr/static2/%s.jpg", r.Host, infos[i%len(infos)].Name)
 			videoUrl = fmt.Sprintf("http://%s/vr/static2/%s", r.Host, infos[i%len(infos)].Name)
 		}
-
 		videoTitle := fmt.Sprintf("test中文%d", i)
-		videsDesc := fmt.Sprintf("test中文%d", i)
+		videoDesc := fmt.Sprintf("test中文%d", i)
 
-		infoItem := VideoInfo{Title: videoTitle, Desc: videsDesc, ImageUrl: imageUrl, VideoUrl: videoUrl}
-		infoList = append(infoList, infoItem)
+		infoList = append(infoList, VideoInfo{Title: videoTitle, Desc: videoDesc, ImageUrl: imageUrl, VideoUrl: videoUrl})
 	}
 
 	fmt.Println(infoList)
 
-	resp.Result = result
-	resp.InfoList = infoList
+	var resp = VideoInfoResp{Result: "ok", InfoList: infoList}
 	js, err := json.Marshal(resp)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

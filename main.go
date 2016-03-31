@@ -83,7 +83,7 @@ func main() {
 	initConfig()
 	initLogger()
 	go ffmpegTransfer()
-	router := initHttpRouter
+	router := initHttpRouter()
 
 	s := &http.Server{
 		Addr:         ":8080",
