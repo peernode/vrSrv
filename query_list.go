@@ -21,7 +21,7 @@ type VideoInfo struct {
 	VideoUrl string
 }
 
-type VideoInfoList []VideoInfo
+type VideoInfoList []*VideoInfo
 
 type VideoInfoResp struct {
 	Result   string
@@ -79,7 +79,7 @@ func GetList(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		videoTitle := fmt.Sprintf("test中文%d", i)
 		videoDesc := fmt.Sprintf("test中文%d", i)
 
-		infoList = append(infoList, VideoInfo{Title: videoTitle, Desc: videoDesc, ImageUrl: imageUrl, VideoUrl: videoUrl})
+		infoList = append(infoList, &VideoInfo{Title: videoTitle, Desc: videoDesc, ImageUrl: imageUrl, VideoUrl: videoUrl})
 	}
 
 	var resp = VideoInfoResp{Result: "ok", InfoList: infoList}
