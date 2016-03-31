@@ -59,7 +59,7 @@ func GetList(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	gLogger.Info("httpreq|GetList|vtype: %s, page: %d, pagesize %d", videoType, page, pagesize)
 
 	if pagesize == 0 || page == 0 {
-		var r = VideoInfoResp{Result:"page info error"}
+		var r = VideoInfoResp{Result:"page info error", InfoList: make(VideoInfoList, 0)}
 		js, _ := json.Marshal(r)
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.Write(js)
