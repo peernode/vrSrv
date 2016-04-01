@@ -89,6 +89,7 @@ func initHttpRouter() *httprouter.Router {
 	router.POST("/vr/upload", Upload)
 	router.GET("/vr/getList", GetList)  //按类型获取媒体列表
 	router.GET("/vr/getList2", GetList2)  //获取上传列表
+	router.GET("/vr/getList3", GetList3)  //获取可用媒体列表
 	router.GET("/vr/getUploadList", GetUploadList)  //获取gearvr的上传列表
 
 	router.ServeFiles("/vr/static/*filepath", http.Dir(configuration.HtmlDir))  //下载相应的静态html文件

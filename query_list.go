@@ -35,6 +35,14 @@ func GetList2(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	w.Write(js)
 }
 
+func GetList3(w http.ResponseWriter, r *http.Request, _ httprouter.Params){
+	medias.Mutex.Lock()
+	js, _ := json.Marshal(medias.info)
+	medias.Mutex.Unlock()
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Write(js)
+}
+
 func GetList(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	r.ParseForm()
 
