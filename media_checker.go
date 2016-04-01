@@ -7,8 +7,9 @@ import (
 	"time"
 )
 
-func deleteUseAppend(s []MediaInfo, i int) {
+func deleteUseAppend(s []MediaInfo, i int) []MediaInfo{
 	s = append(s[:i], s[i+1:]...)
+	return s
 }
 
 func Exist(fileName string) bool{
@@ -35,7 +36,7 @@ func unserializeMediaInfo(){
 }
 
 func serializeMediaInfo(){
-	file, err := os.Open("./conf/media.json")
+	file, err := os.Create("./conf/media.json")
 	if err != nil{
 		fmt.Println("err: ", err.Error())
 		return
@@ -47,18 +48,22 @@ func serializeMediaInfo(){
 	if err != nil{
 		fmt.Println("error: ", err.Error())
 	}
-	fmt.Println(medias)
+//	fmt.Println(medias)
 }
 
 func checkFileStatus(){
 	for{
 		lost := false
-		for _, v:= range medias{
-			for i, info := range v{
-				if !Exist(info.ImgUrl) || !Exist(info.VideoUrl){
-					deleteUseAppend(v, i)
+		for k, v:= range medias{
+			for i:=0; i<len(v); i++{
+				if !Exist(v[i].ImgUrl) || !Exist(v[i].VideoUrl){
+					v = deleteUseAppend(v, i)
+					i--
 					lost = true
 				}
+			}
+			if lost{
+				medias[k]=v
 			}
 		}
 

@@ -21,10 +21,10 @@
     {"datum":"20160326", "title":"韩国", "desc":"韩国", "imgUrl":"media/test1.jpg", "videoUrl":"media/test1.mp4"}
   ],
   "KongBu":[
-    {"datum":"20160322", "title":"知春路街拍", "desc":"知春路街拍", "imgUrl":"media/test1.jpg", "videoUrl":"media/test1.mp4"},
-    {"datum":"20160323", "title":"知春路街拍", "desc":"知春路街拍", "imgUrl":"media/test1.jpg", "videoUrl":"media/test1.mp4"},
-    {"datum":"20160324", "title":"知春路街拍", "desc":"知春路街拍", "imgUrl":"media/test1.jpg", "videoUrl":"media/test1.mp4"},
-    {"datum":"20160325", "title":"知春路街拍", "desc":"知春路街拍", "imgUrl":"media/test1.jpg", "videoUrl":"media/test1.mp4"},
-    {"datum":"20160326", "title":"知春路街拍", "desc":"知春路街拍", "imgUrl":"media/test1.jpg", "videoUrl":"media/test1.mp4"}
+    {"datum":"20160322", "title":"恐怖剧1", "desc":"恐怖剧1", "imgUrl":"media/test1.jpg", "videoUrl":"media/test1.mp4"},
+    {"datum":"20160323", "title":"恐怖剧2", "desc":"恐怖剧2", "imgUrl":"media/test1.jpg", "videoUrl":"media/test1.mp4"},
+    {"datum":"20160324", "title":"恐怖剧3", "desc":"恐怖剧3", "imgUrl":"media/test1.jpg", "videoUrl":"media/test1.mp4"},
+    {"datum":"20160325", "title":"恐怖剧4", "desc":"恐怖剧4", "imgUrl":"media/test1.jpg", "videoUrl":"media/test1.mp4"},
+    {"datum":"20160326", "title":"恐怖剧5", "desc":"恐怖剧5", "imgUrl":"media/test1.jpg", "videoUrl":"media/test1.mp4"}
   ]
 }
