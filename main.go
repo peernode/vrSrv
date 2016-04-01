@@ -99,8 +99,8 @@ func ffmpegTransfer() {
 
 		//cmd := exec.Command("/bin/bash", "test.sh", file.videoName)
 		//_, err := cmd.Output()
-		_, err:= CopyFile(file.videoName, file.outName)
-		_, err = CopyFile("media/vrtest.jpg", file.outName+".jpg")
+		_, err:= CopyFile(file.outName, file.videoName)
+		_, err = CopyFile(file.outName+".jpg", "media/vrtest.jpg")
 
 		cost := time.Since(now)
 		if err != nil {
