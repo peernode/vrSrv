@@ -19,19 +19,54 @@ type Configuration struct {
 	gearDir	     string
 }
 
+type MediaInfo struct{
+	datum string
+	title  string
+	desc	string
+	imgUrl	string
+	videoUrl	string
+}
+type MediaInfos struct{
+	yuanchuang []MediaInfo
+	meinv	   []MediaInfo
+	lvyou	   []MediaInfo
+	kongbu	   []MediaInfo
+}
+
 var gUploadFileCh = make(chan string, 500)
 var logFilename = "srvLog.txt"
 var gLogger l4g.Logger
 var configuration Configuration
+var medias MediaInfos
 
 func initConfig(){
-	file, _ := os.Open("./conf/conf.json")
+	file, err := os.Open("./conf/conf.json")
+	if err != nil{
+		fmt.Println("err: ", err.Error())
+		return
+	}
+
 	decoder := json.NewDecoder(file)
-	err := decoder.Decode(&configuration)
+	err = decoder.Decode(&configuration)
 	if err != nil {
 		configuration = Configuration{htmlDir:"html", uploadDir:"data", convertDir:"data_out", gearDir:"gearvr"}
 		fmt.Println("error:", err)
 	}
+}
+
+func initMedias(){
+	file, err := os.Open("./conf/media.json")
+	if err != nil{
+		fmt.Println("err: ", err.Error())
+		return
+	}
+
+	decoder := json.NewDecoder(file)
+	err = decoder.Decode(&medias)
+	if err != nil{
+		fmt.Println("error: ", err.Error())
+	}
+	fmt.Println(medias)
 }
 
 //init for logger
@@ -81,6 +116,7 @@ func ffmpegTransfer() {
 
 func main() {
 	initConfig()
+	initMedias()
 	initLogger()
 	go ffmpegTransfer()
 	router := initHttpRouter()
