@@ -66,7 +66,7 @@ func GetList(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	infos, _ := getFileInfo(configuration.convertDir, true)
+	infos, _ := getFileInfo(configuration.ConvertDir, true)
 	sort.Sort(infos)
 	infoList := make(VideoInfoList, 0)
 	for i := 0; i < pagesize; i++ {
@@ -148,7 +148,7 @@ func getFileInfo(root string, mp4Only bool) (FileInfos, error) {
 }
 
 func GetUploadList(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	infos, _ := getFileInfo(configuration.uploadDir, false)
+	infos, _ := getFileInfo(configuration.UploadDir, false)
 	sort.Sort(infos)
 	fmt.Println(infos)
 	gLogger.Info("httpreq|GetUploadList| %d items", len(infos))

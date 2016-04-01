@@ -43,7 +43,7 @@ func Upload(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 			datum = datumValue[0]
 		}
 
-		fileName := fmt.Sprintf("./%s/%s_%s_%s", configuration.uploadDir, datum, usrName, handler.Filename)
+		fileName := fmt.Sprintf("./%s/%s_%s_%s", configuration.UploadDir, datum, usrName, handler.Filename)
 		f, err := os.OpenFile(fileName, os.O_WRONLY|os.O_CREATE, 0666)
 		if err != nil {
 			gLogger.Info("upload fail, id: %s, name: %s, err: %s", usrName, handler.Filename, err.Error())

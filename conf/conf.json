@@ -1,6 +1,6 @@
 {
-    "staticDir": "html",
-    "uploadDir": "data",
-    "transferDir": "data_out",
-    "gearDir" : "gearvr"
+    "HtmlDir": "html",
+    "UploadDir": "data",
+    "ConvertDir": "data_out",
+    "GearDir" : "gearvr"
 }

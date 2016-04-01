@@ -13,24 +13,24 @@ import (
 )
 
 type Configuration struct {
-	htmlDir    string
-    uploadDir    string
-    convertDir   string
-	gearDir	     string
+	HtmlDir    string
+    UploadDir    string
+    ConvertDir   string
+	GearDir	     string
 }
 
 type MediaInfo struct{
-	datum string
-	title  string
-	desc	string
-	imgUrl	string
-	videoUrl	string
+	Datum string
+	Title  string
+	Desc	string
+	ImgUrl	string
+	VideoUrl	string
 }
 type MediaInfos struct{
-	yuanchuang []MediaInfo
-	meinv	   []MediaInfo
-	lvyou	   []MediaInfo
-	kongbu	   []MediaInfo
+	YuanChuang []MediaInfo
+	MeiNv	   []MediaInfo
+	LvYou	   []MediaInfo
+	KongBu	   []MediaInfo
 }
 
 var gUploadFileCh = make(chan string, 500)
@@ -49,9 +49,11 @@ func initConfig(){
 	decoder := json.NewDecoder(file)
 	err = decoder.Decode(&configuration)
 	if err != nil {
-		configuration = Configuration{htmlDir:"html", uploadDir:"data", convertDir:"data_out", gearDir:"gearvr"}
+		configuration = Configuration{HtmlDir:"html", UploadDir:"data", ConvertDir:"data_out", GearDir:"gearvr"}
 		fmt.Println("error:", err)
 	}
+
+	fmt.Println(configuration)
 }
 
 func initMedias(){
@@ -92,9 +94,9 @@ func initHttpRouter() *httprouter.Router {
 	router.GET("/vr/getList2", GetList2)  //获取上传列表
 	router.GET("/vr/getUploadList", GetUploadList)  //获取gearvr的上传列表
 
-	router.ServeFiles("/vr/static/*filepath", http.Dir(configuration.htmlDir))  //下载相应的静态html文件
-	router.ServeFiles("/vr/static2/*filepath", http.Dir(configuration.convertDir))  //下载上传的媒体文件
-	router.ServeFiles("/vr/gearvr/*filepath", http.Dir(configuration.gearDir))
+	router.ServeFiles("/vr/static/*filepath", http.Dir(configuration.HtmlDir))  //下载相应的静态html文件
+	router.ServeFiles("/vr/static2/*filepath", http.Dir(configuration.ConvertDir))  //下载上传的媒体文件
+	router.ServeFiles("/vr/gearvr/*filepath", http.Dir(configuration.GearDir))
 
 	return router
 }
