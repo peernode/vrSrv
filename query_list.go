@@ -66,7 +66,7 @@ func GetList(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	infos, _ := getFileInfo(configuration.ConvertDir, true)
+	infos, _ := getFileInfo(configuration.MediaDir, true)
 	sort.Sort(infos)
 	infoList := make(VideoInfoList, 0)
 	for i := 0; i < pagesize; i++ {
