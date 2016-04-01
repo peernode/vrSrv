@@ -26,18 +26,12 @@ type MediaInfo struct{
 	ImgUrl	string
 	VideoUrl	string
 }
-type MediaInfos struct{
-	YuanChuang []MediaInfo
-	MeiNv	   []MediaInfo
-	LvYou	   []MediaInfo
-	KongBu	   []MediaInfo
-}
 
 var gUploadFileCh = make(chan string, 500)
 var logFilename = "srvLog.txt"
 var gLogger l4g.Logger
 var configuration Configuration
-var medias MediaInfos
+var medias map[string][]MediaInfo
 
 func initConfig(){
 	file, err := os.Open("./conf/conf.json")

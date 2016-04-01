@@ -58,27 +58,35 @@ func GetList(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 	gLogger.Info("httpreq|GetList|vtype: %s, page: %d, pagesize %d", videoType, page, pagesize)
 
+	result := "ok"
 	if pagesize == 0 || page == 0 {
-		var r = VideoInfoResp{Result:"page info error", InfoList: make(VideoInfoList, 0)}
+		result = "page info error"
+
+	}
+	mediaInfos, exist := medias[videoType]
+	if !exist{
+		result = "videoType info error"
+	}
+
+	if result !="ok"{
+		var r = VideoInfoResp{Result:result, InfoList: make(VideoInfoList, 0)}
 		js, _ := json.Marshal(r)
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.Write(js)
 		return
 	}
 
-	infos, _ := getFileInfo(configuration.MediaDir, true)
-	sort.Sort(infos)
 	infoList := make(VideoInfoList, 0)
-	for i := 0; i < pagesize; i++ {
-		imageUrl := fmt.Sprintf("http://%s/vr/static/vrimage/vrtest1.jpg", r.Host)
-		videoUrl := fmt.Sprintf("http://%s/vr/static/video/test1.mp4", r.Host)
-		if len(infos) > 0 {
-			imageUrl = fmt.Sprintf("http://%s/vr/static2/%s.jpg", r.Host, infos[i%len(infos)].Name)
-			videoUrl = fmt.Sprintf("http://%s/vr/static2/%s", r.Host, infos[i%len(infos)].Name)
-		}
-		videoTitle := fmt.Sprintf("test中文%d", i)
-		videoDesc := fmt.Sprintf("test中文%d", i)
 
+	for i :=len(infos)-1; i>=0; i--{
+		if len(infoList) >= pagesize{
+			break
+		}
+
+		imageUrl := fmt.Sprintf("http://%s/vr/static2/%s", r.Host, mediaInfos[i].ImgUrl)
+		videoUrl := fmt.Sprintf("http://%s/vr/static2/%s", r.Host, mediaInfos[i].VideoUrl)
+		videoTitle := mediaInfos[i].Title
+		videoDesc := mediaInfos[i].Desc
 		infoList = append(infoList, &VideoInfo{Title: videoTitle, Desc: videoDesc, ImageUrl: imageUrl, VideoUrl: videoUrl})
 	}
 
