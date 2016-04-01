@@ -8,7 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"os/exec"
+//	"os/exec"
 	"time"
 )
 
@@ -96,13 +96,17 @@ func ffmpegTransfer() {
 	for file := range gUploadFileCh {
 		gLogger.Info("transfer, file: %s", file.videoName)
 		now := time.Now()
-		cmd := exec.Command("/bin/bash", "test.sh", file.videoName)
-		bytes, err := cmd.Output()
+
+		//cmd := exec.Command("/bin/bash", "test.sh", file.videoName)
+		//_, err := cmd.Output()
+		_, err:= CopyFile(file.videoName, file.outName)
+		_, err = CopyFile("media/vrtest.jpg", file.outName+".jpg")
+
 		cost := time.Since(now)
 		if err != nil {
 			gLogger.Info("transfer error: %s %s, cost: %d", file.videoName, err.Error(), cost)
 		} else {
-			gLogger.Info("transfer success: %s %s, cost: %d", file.videoName, string(bytes), cost)
+			gLogger.Info("transfer success: %s, cost: %d", file.videoName, cost)
 			newItem := MediaInfo{Datum: time.Now().String(), Title: "锦秋家园街拍", Desc: "锦秋家园街拍", ImgUrl: fmt.Sprintf("%s.jpg", file.outName), VideoUrl: file.outName}
 			medias[file.videoType]=append(medias[file.videoType], newItem)
 		}
