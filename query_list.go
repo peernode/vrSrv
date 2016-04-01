@@ -61,10 +61,17 @@ func GetList(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	result := "ok"
 	if pagesize == 0 || page == 0 {
 		result = "page info error"
-
 	}
-	mediaInfos, exist := medias[videoType]
-	if !exist{
+
+	var mediaInfos []MediaInfo
+	for k, v := range medias{
+		lVideoType :=strings.ToLower(videoType)
+		lK := strings.ToLower(k)
+		if lVideoType == lK{
+			mediaInfos = v
+		}
+	}
+	if mediaInfos == nil{
 		result = "videoType info error"
 	}
 
@@ -78,11 +85,10 @@ func GetList(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 	infoList := make(VideoInfoList, 0)
 
-	for i :=len(infos)-1; i>=0; i--{
+	for i :=len(mediaInfos)-1; i>=0; i--{
 		if len(infoList) >= pagesize{
 			break
 		}
-
 		imageUrl := fmt.Sprintf("http://%s/vr/static2/%s", r.Host, mediaInfos[i].ImgUrl)
 		videoUrl := fmt.Sprintf("http://%s/vr/static2/%s", r.Host, mediaInfos[i].VideoUrl)
 		videoTitle := mediaInfos[i].Title
