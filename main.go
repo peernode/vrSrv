@@ -10,6 +10,7 @@ import (
 	"os"
 //	"os/exec"
 	"time"
+	"sync"
 )
 
 type Configuration struct {
@@ -38,7 +39,12 @@ var gUploadFileCh = make(chan UploadInfo, 500)
 var logFilename = "srvLog.txt"
 var gLogger l4g.Logger
 var configuration Configuration
-var medias map[string][]MediaInfo
+
+type MediaInfos struct{
+	sync.Mutex
+	info map[string][]MediaInfo
+}
+var medias MediaInfos
 
 func initConfig(){
 	file, err := os.Open("./conf/conf.json")
@@ -108,7 +114,12 @@ func ffmpegTransfer() {
 		} else {
 			gLogger.Info("transfer success: %s, cost: %d", file.videoName, cost)
 			newItem := MediaInfo{Datum: time.Now().String(), Title: "锦秋家园街拍", Desc: "锦秋家园街拍", ImgUrl: fmt.Sprintf("%s.jpg", file.outName), VideoUrl: file.outName}
-			medias[file.videoType]=append(medias[file.videoType], newItem)
+
+			medias.Mutex.Lock()
+			medias.info[file.videoType]=append(medias.info[file.videoType], newItem)
+			medias.Mutex.Unlock()
+
+			serializeMediaInfo()
 		}
 	}
 }

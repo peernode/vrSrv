@@ -64,13 +64,15 @@ func GetList(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 
 	var mediaInfos []MediaInfo
-	for k, v := range medias{
+	medias.Mutex.Lock()
+	for k, v := range medias.info{
 		lVideoType :=strings.ToLower(videoType)
 		lK := strings.ToLower(k)
 		if lVideoType == lK{
 			mediaInfos = v
 		}
 	}
+	medias.Mutex.Unlock()
 	if mediaInfos == nil{
 		result = "videoType info error"
 	}
