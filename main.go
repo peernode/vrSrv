@@ -16,6 +16,7 @@ type Configuration struct {
 	HtmlDir    string
     UploadDir    string
     MediaDir   string
+	ConvertDir string
 	GearDir	     string
 }
 
@@ -27,7 +28,13 @@ type MediaInfo struct{
 	VideoUrl	string
 }
 
-var gUploadFileCh = make(chan string, 500)
+type UploadInfo struct{
+	videoType string
+	videoName string
+	outName  string
+}
+
+var gUploadFileCh = make(chan UploadInfo, 500)
 var logFilename = "srvLog.txt"
 var gLogger l4g.Logger
 var configuration Configuration
@@ -39,6 +46,7 @@ func initConfig(){
 		fmt.Println("err: ", err.Error())
 		return
 	}
+	defer file.Close()
 
 	decoder := json.NewDecoder(file)
 	err = decoder.Decode(&configuration)
@@ -50,19 +58,8 @@ func initConfig(){
 	fmt.Println(configuration)
 }
 
-func initMedias(){
-	file, err := os.Open("./conf/media.json")
-	if err != nil{
-		fmt.Println("err: ", err.Error())
-		return
-	}
-
-	decoder := json.NewDecoder(file)
-	err = decoder.Decode(&medias)
-	if err != nil{
-		fmt.Println("error: ", err.Error())
-	}
-	fmt.Println(medias)
+func initMediaInfo(){
+	unserializeMediaInfo()
 }
 
 //init for logger
@@ -97,24 +94,27 @@ func initHttpRouter() *httprouter.Router {
 
 func ffmpegTransfer() {
 	for file := range gUploadFileCh {
-		gLogger.Info("transfer, file: %s", file)
+		gLogger.Info("transfer, file: %s", file.videoName)
 		now := time.Now()
-		cmd := exec.Command("/bin/bash", "test.sh", file)
+		cmd := exec.Command("/bin/bash", "test.sh", file.videoName)
 		bytes, err := cmd.Output()
 		cost := time.Since(now)
 		if err != nil {
-			gLogger.Info("transfer error: %s %s, cost: %d", file, err.Error(), cost)
+			gLogger.Info("transfer error: %s %s, cost: %d", file.videoName, err.Error(), cost)
 		} else {
-			gLogger.Info("transfer success: %s %s, cost: %d", file, string(bytes), cost)
+			gLogger.Info("transfer success: %s %s, cost: %d", file.videoName, string(bytes), cost)
+			newItem := MediaInfo{Datum: time.Now().String(), Title: "锦秋家园街拍", Desc: "锦秋家园街拍", ImgUrl: fmt.Sprintf("%s.jpg", file.outName), VideoUrl: file.outName}
+			medias[file.videoType]=append(medias[file.videoType], newItem)
 		}
 	}
 }
 
 func main() {
 	initConfig()
-	initMedias()
+	initMediaInfo()
 	initLogger()
 	go ffmpegTransfer()
+	go checkFileStatus()
 	router := initHttpRouter()
 
 	s := &http.Server{

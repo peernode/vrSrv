@@ -84,7 +84,6 @@ func GetList(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 
 	infoList := make(VideoInfoList, 0)
-
 	for i :=len(mediaInfos)-1; i>=0; i--{
 		if len(infoList) >= pagesize{
 			break

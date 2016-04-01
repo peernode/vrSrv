@@ -2,5 +2,6 @@
     "HtmlDir": "html",
     "UploadDir": "data",
     "MediaDir": ".",
+    "ConvertDir": "data_out",
     "GearDir" : "gearvr"
 }
