@@ -44,8 +44,8 @@ func unserializeMediaInfo(){
 	}
 	defer file.Close()
 
-	medias.Mutex.Lock()
-	defer medias.Mutex.Unlock()
+	medias.mu.RLock()
+	defer medias.mu.RUnlock()
 	decoder := json.NewDecoder(file)
 	err = decoder.Decode(&medias.info)
 	if err != nil{
@@ -62,8 +62,8 @@ func serializeMediaInfo(){
 	}
 	defer file.Close()
 
-	medias.Mutex.Lock()
-	defer medias.Mutex.Unlock()
+	medias.mu.Lock()
+	defer medias.mu.Unlock()
 	decoder := json.NewEncoder(file)
 	err = decoder.Encode(&medias.info)
 	if err != nil{
@@ -74,7 +74,7 @@ func serializeMediaInfo(){
 func checkFileStatus(){
 	for{
 		lost := false
-		medias.Mutex.Lock()
+		medias.mu.Lock()
 		for k, v:= range medias.info{
 			for i:=0; i<len(v); i++{
 				if !Exist(v[i].ImgUrl) || !Exist(v[i].VideoUrl){
@@ -87,7 +87,7 @@ func checkFileStatus(){
 				medias.info[k]=v
 			}
 		}
-		medias.Mutex.Unlock()
+		medias.mu.Unlock()
 
 		if lost{
 			gLogger.Info("lose some media file")

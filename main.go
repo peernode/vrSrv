@@ -41,7 +41,7 @@ var gLogger l4g.Logger
 var configuration Configuration
 
 type MediaInfos struct{
-	sync.Mutex
+	mu    sync.RWMutex
 	info map[string][]MediaInfo
 }
 var medias MediaInfos
@@ -116,9 +116,9 @@ func ffmpegTransfer() {
 			gLogger.Info("transfer success: %s, cost: %d", file.videoName, cost)
 			newItem := MediaInfo{Datum: time.Now().String(), Title: "锦秋家园街拍", Desc: "锦秋家园街拍", ImgUrl: fmt.Sprintf("%s.jpg", file.outName), VideoUrl: file.outName}
 
-			medias.Mutex.Lock()
+			medias.mu.Lock()
 			medias.info[file.videoType]=append(medias.info[file.videoType], newItem)
-			medias.Mutex.Unlock()
+			medias.mu.Unlock()
 
 			serializeMediaInfo()
 		}

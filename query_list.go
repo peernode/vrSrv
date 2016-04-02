@@ -36,9 +36,9 @@ func GetList2(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 }
 
 func GetList3(w http.ResponseWriter, r *http.Request, _ httprouter.Params){
-	medias.Mutex.Lock()
+	medias.mu.RLock()
 	js, _ := json.Marshal(medias.info)
-	medias.Mutex.Unlock()
+	medias.mu.RUnlock()
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.Write(js)
 }
@@ -72,7 +72,7 @@ func GetList(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 
 	var mediaInfos []MediaInfo
-	medias.Mutex.Lock()
+	medias.mu.RLock()
 	for k, v := range medias.info{
 		lVideoType :=strings.ToLower(videoType)
 		lK := strings.ToLower(k)
@@ -80,7 +80,7 @@ func GetList(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 			mediaInfos = v
 		}
 	}
-	medias.Mutex.Unlock()
+	medias.mu.RUnlock()
 	if mediaInfos == nil{
 		result = "videoType info error"
 	}
