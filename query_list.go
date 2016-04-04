@@ -29,7 +29,7 @@ type VideoInfoResp struct {
 }
 
 func GetList2(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	file, _ := os.Open("program2.json")
+	file, _ := os.Open("./conf/program2.json")
 	js, _ := ioutil.ReadAll(file)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.Write(js)

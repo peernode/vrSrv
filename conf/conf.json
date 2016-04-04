@@ -3,5 +3,7 @@
     "UploadDir": "data",
     "MediaDir": ".",
     "ConvertDir": "data_out",
-    "GearDir" : "gearvr"
+    "GearDir" : "gearvr",
+    "UploadTitle":"锦秋家园街拍",
+    "UploadDesc": "锦秋家园最新街拍"
 }

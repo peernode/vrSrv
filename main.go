@@ -19,6 +19,8 @@ type Configuration struct {
     MediaDir   string
 	ConvertDir string
 	GearDir	     string
+	UploadTitle string
+	UploadDesc  string
 }
 
 type MediaInfo struct{
@@ -114,7 +116,7 @@ func ffmpegTransfer() {
 			gLogger.Info("transfer error: %s %s, cost: %d", file.videoName, err.Error(), cost)
 		} else {
 			gLogger.Info("transfer success: %s, cost: %d", file.videoName, cost)
-			newItem := MediaInfo{Datum: time.Now().String(), Title: "锦秋家园街拍", Desc: "锦秋家园街拍", ImgUrl: fmt.Sprintf("%s.jpg", file.outName), VideoUrl: file.outName}
+			newItem := MediaInfo{Datum: time.Now().String(), Title: configuration.UploadTitle, Desc: configuration.UploadDesc, ImgUrl: fmt.Sprintf("%s.jpg", file.outName), VideoUrl: file.outName}
 
 			medias.mu.Lock()
 			medias.info[file.videoType]=append(medias.info[file.videoType], newItem)
