@@ -44,7 +44,8 @@ func Upload(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 			datum = datumValue[0]
 		}
 
-		fileName := fmt.Sprintf("%s/%s_%s_%s", configuration.UploadDir, datum, usrName, handler.Filename)  //相对路径
+		uploadFile := fmt.Sprintf("%s_%s_%s", datum, usrName, handler.Filename)
+		fileName := fmt.Sprintf("%s/%s", configuration.UploadDir, uploadFile)  //相对路径
 		outfileName := fmt.Sprintf("%s/%s_%s_%s", configuration.ConvertDir, datum, usrName, handler.Filename)
 		f, err := os.Create(fileName)
 		if err != nil {
@@ -52,13 +53,15 @@ func Upload(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 			fmt.Fprintf(w, "%s 上传失败， %s", handler.Filename, err.Error())
 			return
 		}
-		defer f.Close()
+		//defer f.Close()
 
 		io.Copy(f, file)
 		fmt.Fprintf(w, "%s 上传成功！", handler.Filename)
+		f.Close()
+
 
 		if strings.HasSuffix(fileName, "mp4") || strings.HasSuffix(fileName, "MP4") || strings.HasSuffix(fileName, "mov") || strings.HasSuffix(fileName, "MOV"){
-			gUploadFileCh <- UploadInfo{videoType:"YuanChuang", videoName:fileName, outName:outfileName}
+			gUploadFileCh <- UploadInfo{videoType:"YuanChuang", videoName:uploadFile, outName:outfileName}
 		}
 
 		gLogger.Info("upload success, id: %s, name: %s", usrName, handler.Filename)
