@@ -57,7 +57,7 @@ func Upload(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		io.Copy(f, file)
 		fmt.Fprintf(w, "%s 上传成功！", handler.Filename)
 
-		if strings.HasSuffix(fileName, "mp4") || strings.HasSuffix(fileName, "mov"){
+		if strings.HasSuffix(fileName, "mp4") || strings.HasSuffix(fileName, "MP4") || strings.HasSuffix(fileName, "mov") || strings.HasSuffix(fileName, "MOV"){
 			gUploadFileCh <- UploadInfo{videoType:"YuanChuang", videoName:fileName, outName:outfileName}
 		}
 

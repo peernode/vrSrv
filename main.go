@@ -11,6 +11,8 @@ import (
 //	"os/exec"
 	"time"
 	"sync"
+	"runtime"
+	"os/exec"
 )
 
 type Configuration struct {
@@ -37,6 +39,7 @@ type UploadInfo struct{
 	outName  string
 }
 
+var goos string
 var gUploadFileCh = make(chan UploadInfo, 500)
 var logFilename = "srvLog.txt"
 var gLogger l4g.Logger
@@ -47,6 +50,10 @@ type MediaInfos struct{
 	info map[string][]MediaInfo
 }
 var medias MediaInfos
+
+func init(){
+	goos = runtime.GOOS
+}
 
 func initConfig(){
 	file, err := os.Open("./conf/conf.json")
@@ -106,10 +113,16 @@ func ffmpegTransfer() {
 		gLogger.Info("transfer, file: %s", file.videoName)
 		now := time.Now()
 
-		//cmd := exec.Command("/bin/bash", "test.sh", file.videoName)
-		//_, err := cmd.Output()
-		_, err:= CopyFile(file.outName, file.videoName)
-		_, err = CopyFile(file.outName+".jpg", "media/vrtest.jpg")
+
+		var err error
+		if goos == "darwin"{
+			fmt.Println("darwin transfer...")
+			cmd := exec.Command("/bin/bash", "test.sh", file.videoName)
+			_, err = cmd.Output()
+		}else{
+			_, err = CopyFile(file.outName, file.videoName)
+			_, err = CopyFile(file.outName+".jpg", "media/vrtest.jpg")
+		}
 
 		cost := time.Since(now)
 		if err != nil {
@@ -128,6 +141,7 @@ func ffmpegTransfer() {
 }
 
 func main() {
+	fmt.Println(goos)
 	initConfig()
 	initMediaInfo()
 	initLogger()
