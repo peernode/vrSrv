@@ -78,6 +78,7 @@ func checkFileStatus(){
 		for k, v:= range medias.info{
 			for i:=0; i<len(v); i++{
 				if !Exist(v[i].ImgUrl) || !Exist(v[i].VideoUrl){
+					gLogger.Info("lose file: %s", v[i].VideoUrl)
 					v = deleteUseAppend(v, i)
 					i--
 					lost = true
