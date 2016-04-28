@@ -8,9 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
-//	"os/exec"
 	"time"
-	"sync"
 	"runtime"
 	"os/exec"
 )
@@ -25,13 +23,6 @@ type Configuration struct {
 	UploadDesc  string
 }
 
-type MediaInfo struct{
-	Datum string
-	Title  string
-	Desc	string
-	ImgUrl	string
-	VideoUrl	string
-}
 
 type UploadInfo struct{
 	videoType string
@@ -45,11 +36,7 @@ var logFilename = "srvLog.txt"
 var gLogger l4g.Logger
 var configuration Configuration
 
-type MediaInfos struct{
-	mu    sync.RWMutex
-	info map[string][]MediaInfo
-}
-var medias MediaInfos
+var gMedias = NewMediaInfo("./conf/media.json")
 
 func init(){
 	goos = runtime.GOOS
@@ -73,10 +60,6 @@ func initConfig(){
 	fmt.Println(configuration)
 }
 
-func initMediaInfo(){
-	unserializeMediaInfo()
-}
-
 //init for logger
 func initLogger() {
 	gLogger = make(l4g.Logger)
@@ -97,9 +80,9 @@ func initHttpRouter() *httprouter.Router {
 	router.GET("/hello/:name", Hello)
 	router.POST("/vr/upload", Upload)
 	router.GET("/vr/getList", GetList)  //按类型获取媒体列表
-	router.GET("/vr/getList2", GetList2)  //获取上传列表
+	router.GET("/vr/getList2", GetList2)  //获取gearvr的上传列表
 	router.GET("/vr/getList3", GetList3)  //获取可用媒体列表
-	router.GET("/vr/getUploadList", GetUploadList)  //获取gearvr的上传列表
+	router.GET("/vr/getUploadList", GetUploadList)  //获取上传列表
 
 	router.ServeFiles("/vr/static/*filepath", http.Dir(configuration.HtmlDir))  //下载相应的静态html文件
 	router.ServeFiles("/vr/static2/*filepath", http.Dir(configuration.MediaDir))  //下载相应的媒体文件
@@ -112,7 +95,6 @@ func ffmpegTransfer() {
 	for file := range gUploadFileCh {
 		gLogger.Info("transfer, file: %s", file.videoName)
 		now := time.Now()
-
 
 		var err error
 		if goos == "darwin"{
@@ -129,24 +111,16 @@ func ffmpegTransfer() {
 			gLogger.Info("transfer error: %s %s, cost: %d", file.videoName, err.Error(), cost)
 		} else {
 			gLogger.Info("transfer success: %s, cost: %d", file.videoName, cost)
-			newItem := MediaInfo{Datum: time.Now().String(), Title: configuration.UploadTitle, Desc: configuration.UploadDesc, ImgUrl: fmt.Sprintf("%s.jpg", file.outName), VideoUrl: file.outName}
 
-			medias.mu.Lock()
-			medias.info[file.videoType]=append(medias.info[file.videoType], newItem)
-			medias.mu.Unlock()
-
-			serializeMediaInfo()
+			gMedias.Add(file.videoType, time.Now().String(), configuration.UploadTitle, configuration.UploadDesc, fmt.Sprintf("%s.jpg", file.outName), file.outName)
 		}
 	}
 }
 
 func main() {
-	fmt.Println(goos)
 	initConfig()
-	initMediaInfo()
 	initLogger()
 	go ffmpegTransfer()
-	go checkFileStatus()
 	router := initHttpRouter()
 
 	s := &http.Server{

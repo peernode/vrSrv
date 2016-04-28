@@ -14,20 +14,7 @@ import (
 	"strings"
 )
 
-type VideoInfo struct {
-	Title    string
-	Desc     string
-	ImageUrl string
-	VideoUrl string
-}
-
-type VideoInfoList []*VideoInfo
-
-type VideoInfoResp struct {
-	Result   string
-	InfoList VideoInfoList
-}
-
+//获取gearvr的上传列表
 func GetList2(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	file, _ := os.Open("./conf/program2.json")
 	js, _ := ioutil.ReadAll(file)
@@ -35,14 +22,16 @@ func GetList2(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	w.Write(js)
 }
 
+//获取可用媒体列表
 func GetList3(w http.ResponseWriter, r *http.Request, _ httprouter.Params){
-	medias.mu.RLock()
-	js, _ := json.Marshal(medias.info)
-	medias.mu.RUnlock()
+	gMedias.mu.RLock()
+	js, _ := json.Marshal(gMedias.info)
+	gMedias.mu.RUnlock()
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.Write(js)
 }
 
+//按类型获取媒体列表
 func GetList(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	r.ParseForm()
 
@@ -66,47 +55,7 @@ func GetList(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 	gLogger.Info("httpreq|GetList|vtype: %s, page: %d, pagesize %d", videoType, page, pagesize)
 
-	result := "ok"
-	if pagesize == 0 || page == 0 {
-		result = "page info error"
-	}
-
-	var mediaInfos []MediaInfo
-	medias.mu.RLock()
-	for k, v := range medias.info{
-		lVideoType :=strings.ToLower(videoType)
-		lK := strings.ToLower(k)
-		if lVideoType == lK{
-			mediaInfos = v
-		}
-	}
-	medias.mu.RUnlock()
-	if mediaInfos == nil{
-		result = "videoType info error"
-	}
-
-	if result !="ok"{
-		var r = VideoInfoResp{Result:result, InfoList: make(VideoInfoList, 0)}
-		js, _ := json.Marshal(r)
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.Write(js)
-		return
-	}
-
-	infoList := make(VideoInfoList, 0)
-	for i :=len(mediaInfos)-1; i>=0; i--{
-		if len(infoList) >= pagesize{
-			break
-		}
-		imageUrl := fmt.Sprintf("http://%s/vr/static2/%s", r.Host, mediaInfos[i].ImgUrl)
-		videoUrl := fmt.Sprintf("http://%s/vr/static2/%s", r.Host, mediaInfos[i].VideoUrl)
-		videoTitle := mediaInfos[i].Title
-		videoDesc := mediaInfos[i].Desc
-		infoList = append(infoList, &VideoInfo{Title: videoTitle, Desc: videoDesc, ImageUrl: imageUrl, VideoUrl: videoUrl})
-	}
-
-	var resp = VideoInfoResp{Result: "ok", InfoList: infoList}
-	js, err := json.Marshal(resp)
+	js, err := gMedias.Get(pagesize, page, videoType, r.Host)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -170,6 +119,7 @@ func getFileInfo(root string, mp4Only bool) (FileInfos, error) {
 	return infos, nil
 }
 
+//获取上传列表
 func GetUploadList(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	infos, _ := getFileInfo(configuration.UploadDir, false)
 	sort.Sort(infos)
